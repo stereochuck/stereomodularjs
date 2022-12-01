@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Dead simple modular JavaScript framework for ES modules.",
   "repository": "modularorg/modularjs",
-  "author": "Antoine Boulanger <hello@antoineboulanger.com> (https://antoineboulanger.com)",
+  "author": "Stereo Team - support@stereo.ca",
   "license": "MIT",
   "main": "dist/main.cjs.js",
   "module": "dist/main.esm.js",
