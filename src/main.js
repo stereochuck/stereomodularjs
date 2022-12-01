@@ -29,7 +29,6 @@ export default class {
 
                 //split at ","
                 let modulesList = dataModules.split(',');
-                console.log(modulesList);
 
                 modulesList.forEach((currentModule) => {
                     let moduleName = currentModule;
