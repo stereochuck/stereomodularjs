@@ -36,7 +36,7 @@ export default class {
                     if (this.modules[moduleName]) {
                         moduleExists = true;
                     }else{
-                        console.log('Unknown module - Check your module name.');
+                        console.log('"'+moduleName+'" is an Unknown module - Check your module name.');
                     }
 
                     if (moduleExists) {
