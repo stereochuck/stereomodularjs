@@ -10,7 +10,7 @@ export default class {
 
     init(app, scope) {
         const container = scope || document;
-        const elements = container.querySelectorAll('*');
+        const elements = container.querySelectorAll('[data-module]');
 
         if (app && !this.app) {
             this.app = app;
@@ -19,49 +19,56 @@ export default class {
         this.activeModules['app'] = { 'app': this.app };
 
         elements.forEach((el) => {
-          Array.from(el.attributes).forEach((i) => {
 
-            if (i.name.startsWith('data-module')) {
-                let moduleExists = false;
-                let dataName = i.name.split('-').splice(2);
-                let moduleName = this.toCamel(dataName);
+            let dataModules = el.getAttribute('data-module');
+            dataModules = dataModules.replace(' ','');
 
-                if (this.modules[moduleName]) {
-                    moduleExists = true;
-                } else if (this.modules[this.toUpper(moduleName)]) {
-                    moduleName = this.toUpper(moduleName);
-                    moduleExists = true;
-                }
+            if(dataModules == undefined || dataModules==""){
+                console.log('Undeclared module - Check your module name.');
+            }else{
 
-                if (moduleExists) {
-                    const options = {
-                        el: el,
-                        name: moduleName,
-                        dataName: dataName.join('-')
-                    };
+                //split at ","
+                let modulesList = dataModules.split(',');
+                console.log(modulesList);
 
-                    const module = new this.modules[moduleName](options);
-                    let id = i.value;
+                modulesList.forEach((currentModule) => {
+                    let moduleName = currentModule;
 
-                    if (!id) {
-                        this.moduleId++;
-                        id = 'm' + this.moduleId;
-                        el.setAttribute(i.name, id);
+                    if (this.modules[moduleName]) {
+                        moduleExists = true;
+                    }else{
+                        console.log('Unknown module - Check your module name.');
                     }
 
-                    this.addActiveModule(moduleName, id, module);
+                    if (moduleExists) {
+                        const options = {
+                            el: el,
+                            name: moduleName,
+                            dataName: moduleName
+                        };
 
-                    const moduleId = moduleName + '-' + id;
+                        const module = new this.modules[moduleName](options);
+                        let id = currentModule.value;
 
-                    if (scope) {
-                        this.newModules[moduleId] = module;
-                    } else {
-                        this.currentModules[moduleId] = module;
+                        if (!id) {
+                            this.moduleId++;
+                            id = 'm' + this.moduleId;
+                            el.setAttribute(currentModule.name, id);
+                        }
+
+                        this.addActiveModule(moduleName, id, module);
+
+                        const moduleId = moduleName + '-' + id;
+
+                        if (scope) {
+                            this.newModules[moduleId] = module;
+                        } else {
+                            this.currentModules[moduleId] = module;
+                        }
                     }
-                }
+                });
             }
-          })
-        })
+        });
 
         Object.entries(this.currentModules).forEach(([id, module]) => {
             if (scope) {
@@ -114,18 +121,19 @@ export default class {
         const elements = scope.querySelectorAll('*');
 
         elements.forEach((el) => {
-            Array.from(el.attributes).forEach((i) => {
 
-                if (i.name.startsWith('data-module')) {
-                    const id = i.value;
-                    const dataName = i.name.split('-').splice(2);
-                    let moduleName = this.toCamel(dataName) + '-' + id;
-                    let moduleExists = false;
+            let dataModules = el.getAttribute('data-module');
 
-                    if (this.currentModules[moduleName]) {
-                        moduleExists = true;
-                    } else if (this.currentModules[this.toUpper(moduleName)]) {
-                        moduleName = this.toUpper(moduleName);
+            if(dataModules == undefined){
+                console.log('Undeclared module');
+            }else{
+                let modulesList = dataModules.replace(dataModules,' ');
+                modulesList = modulesList.split(',');
+
+                modulesList.forEach((currentModule) => {
+                    let moduleName = currentModule;
+
+                    if (this.modules[moduleName]) {
                         moduleExists = true;
                     }
 
@@ -134,9 +142,8 @@ export default class {
 
                         delete this.currentModules[moduleName];
                     }
-                }
-
-            })
+                })
+            }
         })
 
         this.activeModules = {};
@@ -154,14 +161,6 @@ export default class {
     destroyModule(module) {
         module.mDestroy();
         module.destroy();
-    }
-
-    toCamel(arr) {
-        return arr.reduce((a, b) => a + this.toUpper(b));
-    }
-
-    toUpper(str) {
-        return str.charAt(0).toUpperCase() + str.slice(1);
     }
 }
 
