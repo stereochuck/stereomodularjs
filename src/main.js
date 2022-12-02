@@ -117,32 +117,43 @@ export default class {
     }
 
     destroyScope(scope) {
-        const elements = scope.querySelectorAll('*');
+        const container = scope || document;
+        const elements = container.querySelectorAll('[data-module]');
 
         elements.forEach((el) => {
 
-            let dataModules = el.getAttribute('data-module');
+             let dataModules = el.getAttribute('data-module');
+            dataModules = dataModules.replace(' ','');
+            let modulesList = dataModules.replace(dataModules,' ');
+            modulesList = modulesList.split(',');
 
-            if(dataModules == undefined){
-                console.log('Undeclared module');
-            }else{
-                let modulesList = dataModules.replace(dataModules,' ');
-                modulesList = modulesList.split(',');
+            modulesList.forEach((currentModule) => {
 
-                modulesList.forEach((currentModule) => {
-                    let moduleName = currentModule;
 
-                    if (this.modules[moduleName]) {
-                        moduleExists = true;
-                    }
+                const id = currentModule.value;
+                const dataName = currentModule;
+                let moduleName = dataName + '-' + id;
+                let moduleExists = false;
 
-                    if (moduleExists) {
-                        this.destroyModule(this.currentModules[moduleName]);
+                if (this.currentModules[moduleName]) {
+                    moduleExists = true;
+                }
+                if (moduleExists) {
+                    this.destroyModule(this.currentModules[moduleName]);
+                    delete this.currentModules[moduleName];
+                }
 
-                        delete this.currentModules[moduleName];
-                    }
-                })
-            }
+                // let moduleName = currentModule;
+
+                // if (this.modules[moduleName]) {
+                //     moduleExists = true;
+                // }
+
+                // if (moduleExists) {
+                //     this.destroyModule(this.currentModules[moduleName]);
+                //     delete this.currentModules[moduleName];
+                // }
+            })
         })
 
         this.activeModules = {};

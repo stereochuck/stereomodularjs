@@ -427,26 +427,39 @@ var _default$1 = /*#__PURE__*/function () {
     key: "destroyScope",
     value: function destroyScope(scope) {
       var _this3 = this;
-      var elements = scope.querySelectorAll('*');
+      var container = scope || document;
+      var elements = container.querySelectorAll('[data-module]');
       elements.forEach(function (el) {
         var dataModules = el.getAttribute('data-module');
-        if (dataModules == undefined) {
-          console.log('Undeclared module');
-        } else {
-          var modulesList = dataModules.replace(dataModules, ' ');
-          modulesList = modulesList.split(',');
-          modulesList.forEach(function (currentModule) {
-            var moduleName = currentModule;
-            if (_this3.modules[moduleName]) {
-              moduleExists = true;
-            }
-            if (moduleExists) {
-              _this3.destroyModule(_this3.currentModules[moduleName]);
-              delete _this3.currentModules[moduleName];
-            }
-          });
-        }
+        dataModules = dataModules.replace(' ', '');
+        var modulesList = dataModules.replace(dataModules, ' ');
+        modulesList = modulesList.split(',');
+        modulesList.forEach(function (currentModule) {
+          var id = currentModule.value;
+          var dataName = currentModule;
+          var moduleName = dataName + '-' + id;
+          var moduleExists = false;
+          if (_this3.currentModules[moduleName]) {
+            moduleExists = true;
+          }
+          if (moduleExists) {
+            _this3.destroyModule(_this3.currentModules[moduleName]);
+            delete _this3.currentModules[moduleName];
+          }
+
+          // let moduleName = currentModule;
+
+          // if (this.modules[moduleName]) {
+          //     moduleExists = true;
+          // }
+
+          // if (moduleExists) {
+          //     this.destroyModule(this.currentModules[moduleName]);
+          //     delete this.currentModules[moduleName];
+          // }
+        });
       });
+
       this.activeModules = {};
       this.newModules = {};
     }
