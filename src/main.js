@@ -52,7 +52,7 @@ export default class {
                         if (!id) {
                             this.moduleId++;
                             id = 'm' + this.moduleId;
-                            el.setAttribute(currentModule.name, id);
+                            el.setAttribute('data-mid', id);
                         }
 
                         this.addActiveModule(moduleName, id, module);

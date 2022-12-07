@@ -353,7 +353,7 @@ var _default$1 = /*#__PURE__*/function () {
               if (!id) {
                 _this.moduleId++;
                 id = 'm' + _this.moduleId;
-                el.setAttribute(currentModule.name, id);
+                el.setAttribute('data-mid', id);
               }
               _this.addActiveModule(moduleName, id, module);
               var moduleId = moduleName + '-' + id;
