@@ -32,7 +32,7 @@ export default class {
 
                 modulesList.forEach((currentModule) => {
                     let moduleName = currentModule;
-
+                    let moduleExists = false;
                     if (this.modules[moduleName]) {
                         moduleExists = true;
                     }else{
@@ -117,43 +117,22 @@ export default class {
     }
 
     destroyScope(scope) {
-        const container = scope || document;
-        const elements = container.querySelectorAll('[data-module]');
+        const elements = scope.querySelectorAll('*');
 
         elements.forEach((el) => {
+            //get el data-module attribute and mid
+            let moduleName = el.getAttribute('data-module');
+            let moduleId = el.getAttribute('data-mid');
+            let moduleExists = false;
+            let module = moduleName + '-' + moduleId;
+            if (this.currentModules[module]) {
+                moduleExists = true;
+            }
 
-             let dataModules = el.getAttribute('data-module');
-            dataModules = dataModules.replace(' ','');
-            let modulesList = dataModules.replace(dataModules,' ');
-            modulesList = modulesList.split(',');
-
-            modulesList.forEach((currentModule) => {
-
-
-                const id = currentModule.value;
-                const dataName = currentModule;
-                let moduleName = dataName + '-' + id;
-                let moduleExists = false;
-
-                if (this.currentModules[moduleName]) {
-                    moduleExists = true;
-                }
-                if (moduleExists) {
-                    this.destroyModule(this.currentModules[moduleName]);
-                    delete this.currentModules[moduleName];
-                }
-
-                // let moduleName = currentModule;
-
-                // if (this.modules[moduleName]) {
-                //     moduleExists = true;
-                // }
-
-                // if (moduleExists) {
-                //     this.destroyModule(this.currentModules[moduleName]);
-                //     delete this.currentModules[moduleName];
-                // }
-            })
+            if (moduleExists) {
+                this.destroyModule(this.currentModules[module]);
+                delete this.currentModules[module];
+            }
         })
 
         this.activeModules = {};
@@ -171,6 +150,14 @@ export default class {
     destroyModule(module) {
         module.mDestroy();
         module.destroy();
+    }
+
+    toCamel(arr) {
+        return arr.reduce((a, b) => a + this.toUpper(b));
+    }
+
+    toUpper(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
     }
 }
 

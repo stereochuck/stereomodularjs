@@ -131,7 +131,6 @@ export default class {
             mod = args;
             args = false;
         }
-
         if (this.modules[mod]) {
             if (id) {
                 if (this.modules[mod][id]) {
