@@ -1,38 +1,52 @@
-function _iterableToArrayLimit(arr, i) {
-  var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"];
-  if (null != _i) {
-    var _s,
-      _e,
-      _x,
-      _r,
-      _arr = [],
-      _n = !0,
-      _d = !1;
+function _iterableToArrayLimit(r, l) {
+  var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
+  if (null != t) {
+    var e,
+      n,
+      i,
+      u,
+      a = [],
+      f = !0,
+      o = !1;
     try {
-      if (_x = (_i = _i.call(arr)).next, 0 === i) {
-        if (Object(_i) !== _i) return;
-        _n = !1;
-      } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0);
-    } catch (err) {
-      _d = !0, _e = err;
+      if (i = (t = t.call(r)).next, 0 === l) {
+        if (Object(t) !== t) return;
+        f = !1;
+      } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0);
+    } catch (r) {
+      o = !0, n = r;
     } finally {
       try {
-        if (!_n && null != _i.return && (_r = _i.return(), Object(_r) !== _r)) return;
+        if (!f && null != t.return && (u = t.return(), Object(u) !== u)) return;
       } finally {
-        if (_d) throw _e;
+        if (o) throw n;
       }
     }
-    return _arr;
+    return a;
   }
 }
-function _typeof(obj) {
+function _toPrimitive(t, r) {
+  if ("object" != typeof t || !t) return t;
+  var e = t[Symbol.toPrimitive];
+  if (void 0 !== e) {
+    var i = e.call(t, r || "default");
+    if ("object" != typeof i) return i;
+    throw new TypeError("@@toPrimitive must return a primitive value.");
+  }
+  return ("string" === r ? String : Number)(t);
+}
+function _toPropertyKey(t) {
+  var i = _toPrimitive(t, "string");
+  return "symbol" == typeof i ? i : String(i);
+}
+function _typeof(o) {
   "@babel/helpers - typeof";
 
-  return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) {
-    return typeof obj;
-  } : function (obj) {
-    return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-  }, _typeof(obj);
+  return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) {
+    return typeof o;
+  } : function (o) {
+    return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
+  }, _typeof(o);
 }
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -103,20 +117,6 @@ function _nonIterableSpread() {
 }
 function _nonIterableRest() {
   throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-}
-function _toPrimitive(input, hint) {
-  if (typeof input !== "object" || input === null) return input;
-  var prim = input[Symbol.toPrimitive];
-  if (prim !== undefined) {
-    var res = prim.call(input, hint || "default");
-    if (typeof res !== "object") return res;
-    throw new TypeError("@@toPrimitive must return a primitive value.");
-  }
-  return (hint === "string" ? String : Number)(input);
-}
-function _toPropertyKey(arg) {
-  var key = _toPrimitive(arg, "string");
-  return typeof key === "symbol" ? key : String(key);
 }
 
 var _default = /*#__PURE__*/function () {
@@ -206,7 +206,6 @@ var _default = /*#__PURE__*/function () {
             value: target
           }); // For IE 11
         }
-
         this[method](e);
       }
     }
@@ -337,6 +336,7 @@ var _default$1 = /*#__PURE__*/function () {
           var modulesList = dataModules.split(',');
           modulesList.forEach(function (currentModule) {
             var moduleName = currentModule;
+            var moduleExists = false;
             if (_this.modules[moduleName]) {
               moduleExists = true;
             } else {
@@ -427,39 +427,21 @@ var _default$1 = /*#__PURE__*/function () {
     key: "destroyScope",
     value: function destroyScope(scope) {
       var _this3 = this;
-      var container = scope || document;
-      var elements = container.querySelectorAll('[data-module]');
+      var elements = scope.querySelectorAll('*');
       elements.forEach(function (el) {
-        var dataModules = el.getAttribute('data-module');
-        dataModules = dataModules.replace(' ', '');
-        var modulesList = dataModules.replace(dataModules, ' ');
-        modulesList = modulesList.split(',');
-        modulesList.forEach(function (currentModule) {
-          var id = currentModule.value;
-          var dataName = currentModule;
-          var moduleName = dataName + '-' + id;
-          var moduleExists = false;
-          if (_this3.currentModules[moduleName]) {
-            moduleExists = true;
-          }
-          if (moduleExists) {
-            _this3.destroyModule(_this3.currentModules[moduleName]);
-            delete _this3.currentModules[moduleName];
-          }
-
-          // let moduleName = currentModule;
-
-          // if (this.modules[moduleName]) {
-          //     moduleExists = true;
-          // }
-
-          // if (moduleExists) {
-          //     this.destroyModule(this.currentModules[moduleName]);
-          //     delete this.currentModules[moduleName];
-          // }
-        });
+        //get el data-module attribute and mid
+        var moduleName = el.getAttribute('data-module');
+        var moduleId = el.getAttribute('data-mid');
+        var moduleExists = false;
+        var module = moduleName + '-' + moduleId;
+        if (_this3.currentModules[module]) {
+          moduleExists = true;
+        }
+        if (moduleExists) {
+          _this3.destroyModule(_this3.currentModules[module]);
+          delete _this3.currentModules[module];
+        }
       });
-
       this.activeModules = {};
       this.newModules = {};
     }
@@ -480,6 +462,19 @@ var _default$1 = /*#__PURE__*/function () {
     value: function destroyModule(module) {
       module.mDestroy();
       module.destroy();
+    }
+  }, {
+    key: "toCamel",
+    value: function toCamel(arr) {
+      var _this5 = this;
+      return arr.reduce(function (a, b) {
+        return a + _this5.toUpper(b);
+      });
+    }
+  }, {
+    key: "toUpper",
+    value: function toUpper(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
     }
   }]);
   return _default;
