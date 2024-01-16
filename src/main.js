@@ -10,7 +10,7 @@ export default class {
 
     init(app, scope) {
         const container = scope || document;
-        const elements = container.querySelectorAll('*');
+        const elements = container.querySelectorAll('[data-module]');
 
         if (app && !this.app) {
             this.app = app;
@@ -19,49 +19,55 @@ export default class {
         this.activeModules['app'] = { 'app': this.app };
 
         elements.forEach((el) => {
-          Array.from(el.attributes).forEach((i) => {
 
-            if (i.name.startsWith('data-module')) {
-                let moduleExists = false;
-                let dataName = i.name.split('-').splice(2);
-                let moduleName = this.toCamel(dataName);
+            let dataModules = el.getAttribute('data-module');
+            dataModules = dataModules.replace(' ','');
 
-                if (this.modules[moduleName]) {
-                    moduleExists = true;
-                } else if (this.modules[this.toUpper(moduleName)]) {
-                    moduleName = this.toUpper(moduleName);
-                    moduleExists = true;
-                }
+            if(dataModules == undefined || dataModules==""){
+                console.log('Undeclared module - Check your module name.');
+            }else{
 
-                if (moduleExists) {
-                    const options = {
-                        el: el,
-                        name: moduleName,
-                        dataName: dataName.join('-')
-                    };
+                //split at ","
+                let modulesList = dataModules.split(',');
 
-                    const module = new this.modules[moduleName](options);
-                    let id = i.value;
-
-                    if (!id) {
-                        this.moduleId++;
-                        id = 'm' + this.moduleId;
-                        el.setAttribute(i.name, id);
+                modulesList.forEach((currentModule) => {
+                    let moduleName = currentModule;
+                    let moduleExists = false;
+                    if (this.modules[moduleName]) {
+                        moduleExists = true;
+                    }else{
+                        console.log('"'+moduleName+'" is an unknown module or isn\'t imported.');
                     }
 
-                    this.addActiveModule(moduleName, id, module);
+                    if (moduleExists) {
+                        const options = {
+                            el: el,
+                            name: moduleName,
+                            dataName: moduleName
+                        };
 
-                    const moduleId = moduleName + '-' + id;
+                        const module = new this.modules[moduleName](options);
+                        let id = currentModule.value;
 
-                    if (scope) {
-                        this.newModules[moduleId] = module;
-                    } else {
-                        this.currentModules[moduleId] = module;
+                        if (!id) {
+                            this.moduleId++;
+                            id = 'm' + this.moduleId;
+                            el.setAttribute('data-mid', id);
+                        }
+
+                        this.addActiveModule(moduleName, id, module);
+
+                        const moduleId = moduleName + '-' + id;
+
+                        if (scope) {
+                            this.newModules[moduleId] = module;
+                        } else {
+                            this.currentModules[moduleId] = module;
+                        }
                     }
-                }
+                });
             }
-          })
-        })
+        });
 
         Object.entries(this.currentModules).forEach(([id, module]) => {
             if (scope) {
@@ -114,29 +120,19 @@ export default class {
         const elements = scope.querySelectorAll('*');
 
         elements.forEach((el) => {
-            Array.from(el.attributes).forEach((i) => {
+            //get el data-module attribute and mid
+            let moduleName = el.getAttribute('data-module');
+            let moduleId = el.getAttribute('data-mid');
+            let moduleExists = false;
+            let module = moduleName + '-' + moduleId;
+            if (this.currentModules[module]) {
+                moduleExists = true;
+            }
 
-                if (i.name.startsWith('data-module')) {
-                    const id = i.value;
-                    const dataName = i.name.split('-').splice(2);
-                    let moduleName = this.toCamel(dataName) + '-' + id;
-                    let moduleExists = false;
-
-                    if (this.currentModules[moduleName]) {
-                        moduleExists = true;
-                    } else if (this.currentModules[this.toUpper(moduleName)]) {
-                        moduleName = this.toUpper(moduleName);
-                        moduleExists = true;
-                    }
-
-                    if (moduleExists) {
-                        this.destroyModule(this.currentModules[moduleName]);
-
-                        delete this.currentModules[moduleName];
-                    }
-                }
-
-            })
+            if (moduleExists) {
+                this.destroyModule(this.currentModules[module]);
+                delete this.currentModules[module];
+            }
         })
 
         this.activeModules = {};
