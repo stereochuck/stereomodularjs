@@ -95,6 +95,8 @@ export default class {
     }
 
     update(scope) {
+        this.destroyScope(scope);
+        
         this.init(this.app, scope);
 
         Object.entries(this.currentModules).forEach(([id, module]) => {

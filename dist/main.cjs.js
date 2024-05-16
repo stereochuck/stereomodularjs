@@ -403,6 +403,7 @@ var _default$1 = /*#__PURE__*/function () {
     key: "update",
     value: function update(scope) {
       var _this2 = this;
+      this.destroyScope(scope);
       this.init(this.app, scope);
       Object.entries(this.currentModules).forEach(function (_ref3) {
         var _ref4 = _slicedToArray(_ref3, 2),
